@@ -1,30 +1,23 @@
 package friendsMod;
 
 import basemod.BaseMod;
-import basemod.ModLabeledToggleButton;
-import basemod.ModPanel;
 import basemod.interfaces.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.graphics.Texture;
-import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
+import com.evacipated.cardcrawl.modthespire.Loader;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
+import com.evacipated.cardcrawl.modthespire.steam.SteamSearch;
 import com.google.gson.Gson;
-import com.megacrit.cardcrawl.core.Settings;
-import com.megacrit.cardcrawl.helpers.FontHelper;
-import com.megacrit.cardcrawl.localization.*;
 import friendsMod.util.IDCheckDontTouchPls;
-import friendsMod.util.TextureLoader;
-import friendsMod.variables.DefaultCustomVariable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static basemod.BaseMod.gson;
 
@@ -62,22 +55,21 @@ import static basemod.BaseMod.gson;
  */
 
 @SpireInitializer
-public class DefaultMod implements EditCardsSubscriber, EditRelicsSubscriber, EditStringsSubscriber,
+public class FriendsMod implements EditCardsSubscriber, EditRelicsSubscriber, EditStringsSubscriber,
         EditKeywordsSubscriber, EditCharactersSubscriber, PostInitializeSubscriber {
     // Make sure to implement the subscribers *you* are using (read basemod wiki). Editing cards? EditCardsSubscriber.
     // Making relics? EditRelicsSubscriber. etc., etc., for a full list and how to make your own, visit the basemod
     // wiki.
-    public static final Logger logger = LogManager.getLogger(DefaultMod.class.getName());
+    public static final Logger logger = LogManager.getLogger(FriendsMod.class.getName());
     private static String modID;
 
     // Mod-settings settings. This is if you want an on/off savable button
-    public static Properties masterModDefaultSettings = new Properties();
     public static final String ENABLE_PLACEHOLDER_SETTINGS = "enablePlaceholder";
     public static boolean enablePlaceholder = true; // The boolean we'll be setting on/off (true/false)
 
     //This is for the in-game mod settings panel.
-    private static final String MODNAME = "Default Mod";
-    private static final String AUTHOR = "Gremious, sdgoglin"; // And pretty soon - You!
+    private static final String MODNAME = "Friends Mod";
+    private static final String AUTHOR = "Gremious, sdgoglin";
     private static final String DESCRIPTION = "A mod.";
 
     // =============== INPUT TEXTURE LOCATION =================
@@ -85,16 +77,28 @@ public class DefaultMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
     public static final List<String> friends = new ArrayList<>();
     public static String highlightColor = "purple";
 
-    public DefaultMod() {
+    private String friendsJson = "";
+
+    public FriendsMod() {
         logger.info("Subscribe to BaseMod hooks");
 
         BaseMod.subscribe(this);
 
+        for (SteamSearch.WorkshopInfo workshopInfo : Loader.getWorkshopInfos()) {
+            String installPath = workshopInfo.getInstallPath();
+            if (installPath.contains("2945101786")) {
+                try {
+                    String s = installPath + File.separator + "friends.json";
+                    logger.info("Trying to load " + s);
+                    friendsJson = Gdx.files.absolute(s).readString(String.valueOf(StandardCharsets.UTF_8));
+                    logger.info("Loaded friends.json!");
+                } catch (Exception e) {
+                    logger.info("Failed to load friends.json: " + e);
+                }
+            }
+        }
+
         setModID("friendsMod");
-
-        logger.info("Adding mod settings");
-        logger.info("Done adding mod settings");
-
     }
 
     // ====== NO EDIT AREA ======
@@ -105,7 +109,7 @@ public class DefaultMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
         Gson coolG = new Gson(); // EY DON'T EDIT THIS
         //   String IDjson = Gdx.files.internal("IDCheckStringsDONT-EDIT-AT-ALL.json").readString(String.valueOf
         //   (StandardCharsets.UTF_8)); // i hate u Gdx.files
-        InputStream in = DefaultMod.class.getResourceAsStream("/IDCheckStringsDONT-EDIT-AT-ALL.json"); // DON'T EDIT
+        InputStream in = FriendsMod.class.getResourceAsStream("/IDCheckStringsDONT-EDIT-AT-ALL.json"); // DON'T EDIT
         // THIS ETHER
         IDCheckDontTouchPls EXCEPTION_STRINGS = coolG.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8),
                 IDCheckDontTouchPls.class); // OR THIS, DON'T EDIT IT
@@ -129,11 +133,11 @@ public class DefaultMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
         Gson coolG = new Gson(); // NNOPE DON'T EDIT THIS
         //   String IDjson = Gdx.files.internal("IDCheckStringsDONT-EDIT-AT-ALL.json").readString(String.valueOf
         //   (StandardCharsets.UTF_8)); // i still hate u btw Gdx.files
-        InputStream in = DefaultMod.class.getResourceAsStream("/IDCheckStringsDONT-EDIT-AT-ALL.json"); // DON'T EDIT
+        InputStream in = FriendsMod.class.getResourceAsStream("/IDCheckStringsDONT-EDIT-AT-ALL.json"); // DON'T EDIT
         // THISSSSS
         IDCheckDontTouchPls EXCEPTION_STRINGS = coolG.fromJson(new InputStreamReader(in, StandardCharsets.UTF_8),
                 IDCheckDontTouchPls.class); // NAH, NO EDIT
-        String packageName = DefaultMod.class.getPackage().getName(); // STILL NO EDIT ZONE
+        String packageName = FriendsMod.class.getPackage().getName(); // STILL NO EDIT ZONE
         FileHandle resourcePathExists = Gdx.files.internal(getModID() + "Resources"); // PLEASE DON'T EDIT THINGS
         // HERE, THANKS
         if (!modID.equals(EXCEPTION_STRINGS.DEVID)) { // LEAVE THIS EDIT-LESS
@@ -152,9 +156,9 @@ public class DefaultMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
 
     @SuppressWarnings("unused")
     public static void initialize() {
-        logger.info("========================= Initializing Default Mod. Hi. =========================");
-        DefaultMod defaultmod = new DefaultMod();
-        logger.info("========================= /Default Mod Initialized. Hello World./ =========================");
+        logger.info("========================= Initializing Friends Mod. Hi. =========================");
+        FriendsMod defaultmod = new FriendsMod();
+        logger.info("========================= /Friends Mod Initialized/ =========================");
     }
 
     // ============== /SUBSCRIBE, CREATE THE COLOR_GRAY, INITIALIZE/ =================
@@ -248,18 +252,16 @@ public class DefaultMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
     @Override
     public void receiveEditStrings() {
         logger.info("################################################################################");
-
-        String friendsJson = Gdx.files.local("mods/friends.json").readString(String.valueOf(StandardCharsets.UTF_8));
-        FriendsStrings m = gson.fromJson(friendsJson, FriendsStrings.class);
-        logger.info("Mastered: " + String.join(",", m.friends));
-        friends.addAll(m.friends);
-        if (!m.highlight_color.isEmpty()) {
-            highlightColor = m.highlight_color;
+        if (!friendsJson.isEmpty()) {
+            FriendsStrings m = gson.fromJson(friendsJson, FriendsStrings.class);
+            logger.info("Mastered: " + String.join(",", m.friends));
+            friends.addAll(m.friends);
+            if (!m.highlight_color.isEmpty()) {
+                highlightColor = m.highlight_color;
+            }
         }
 
         logger.info("################################################################################");
-
-        logger.info("Done editing strings");
     }
 
     // ================ /LOAD THE TEXT/ ===================

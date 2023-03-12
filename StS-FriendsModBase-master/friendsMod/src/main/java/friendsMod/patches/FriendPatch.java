@@ -6,7 +6,7 @@ import com.evacipated.cardcrawl.modthespire.lib.SpirePatch;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePatch2;
 import com.evacipated.cardcrawl.modthespire.lib.SpirePostfixPatch;
 import com.megacrit.cardcrawl.screens.leaderboards.LeaderboardEntry;
-import friendsMod.DefaultMod;
+import friendsMod.FriendsMod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -59,9 +59,9 @@ public class FriendPatch {
 
     @SpirePostfixPatch
     public static void LeaderboardEntry(LeaderboardEntry __instance, @ByRef Color[] ___color) {
-        if (DefaultMod.friends.contains(__instance.name)) {
+        if (FriendsMod.friends.contains(__instance.name)) {
             logger.atInfo().log("Updating " + __instance.name);
-            ___color[0] = COLOURS.getOrDefault(DefaultMod.highlightColor, Color.PURPLE).cpy();
+            ___color[0] = COLOURS.getOrDefault(FriendsMod.highlightColor, Color.PURPLE).cpy();
         }
     }
 }
