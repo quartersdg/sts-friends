@@ -4,22 +4,21 @@ import basemod.BaseMod;
 import basemod.interfaces.*;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.evacipated.cardcrawl.modthespire.Loader;
+import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
 import com.evacipated.cardcrawl.modthespire.lib.SpireInitializer;
-import com.evacipated.cardcrawl.modthespire.steam.SteamSearch;
 import com.google.gson.Gson;
 import friendsMod.util.IDCheckDontTouchPls;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import static basemod.BaseMod.gson;
+import java.util.stream.Collectors;
 
 //TODO: DON'T MASS RENAME/REFACTOR
 //TODO: DON'T MASS RENAME/REFACTOR
@@ -74,31 +73,43 @@ public class FriendsMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
 
     // =============== INPUT TEXTURE LOCATION =================
 
+
     public static final List<String> friends = new ArrayList<>();
     public static String highlightColor = "purple";
-
-    private String friendsJson = "";
 
     public FriendsMod() {
         logger.info("Subscribe to BaseMod hooks");
 
         BaseMod.subscribe(this);
 
-        for (SteamSearch.WorkshopInfo workshopInfo : Loader.getWorkshopInfos()) {
-            String installPath = workshopInfo.getInstallPath();
-            if (installPath.contains("2945101786")) {
-                try {
-                    String s = installPath + File.separator + "friends.json";
-                    logger.info("Trying to load " + s);
-                    friendsJson = Gdx.files.absolute(s).readString(String.valueOf(StandardCharsets.UTF_8));
-                    logger.info("Loaded friends.json!");
-                } catch (Exception e) {
-                    logger.info("Failed to load friends.json: " + e);
-                }
-            }
+        String configFriends = "";
+        String configHighlightColor = "";
+        try {
+            SpireConfig config = new SpireConfig("Friends", "config");
+            configFriends = getOrDefault(config, "friends", "Vorpal,stephen");
+            configHighlightColor = getOrDefault(config, "highlight_color", "sky");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
+
+        friends.addAll(Arrays.stream(configFriends.split(",")).distinct().collect(Collectors.toList()));
+        highlightColor = configHighlightColor;
+        logger.info("Friends == " + configFriends);
+        logger.info("Friends == " + friends);
+        logger.info("Highlight Color == " + highlightColor);
+
         setModID("friendsMod");
+    }
+
+    private String getOrDefault(SpireConfig config, String key, String d) throws IOException {
+        String v = config.getString(key);
+        if (null == v || v.isEmpty()) {
+            v = d;
+            config.setString(key, v);
+            config.save();
+        }
+        return v;
     }
 
     // ====== NO EDIT AREA ======
@@ -243,23 +254,9 @@ public class FriendsMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
 
     // ================ LOAD THE TEXT ===================
 
-    private static class FriendsStrings {
-        List<String> friends;
-
-        String highlight_color;
-    }
-
     @Override
     public void receiveEditStrings() {
         logger.info("################################################################################");
-        if (!friendsJson.isEmpty()) {
-            FriendsStrings m = gson.fromJson(friendsJson, FriendsStrings.class);
-            logger.info("Mastered: " + String.join(",", m.friends));
-            friends.addAll(m.friends);
-            if (!m.highlight_color.isEmpty()) {
-                highlightColor = m.highlight_color;
-            }
-        }
 
         logger.info("################################################################################");
     }
