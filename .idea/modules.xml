@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/StS-FriendsModBase-master/friendsMod/FriendsMod.iml" filepath="$PROJECT_DIR$/StS-FriendsModBase-master/friendsMod/FriendsMod.iml" />
+      <module fileurl="file://$PROJECT_DIR$/StS-FriendsMod/friendsMod/FriendsMod.iml" filepath="$PROJECT_DIR$/StS-FriendsMod/friendsMod/FriendsMod.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/StS-FriendsMod.iml" filepath="$PROJECT_DIR$/.idea/StS-FriendsMod.iml" />
     </modules>
   </component>

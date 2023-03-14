@@ -1,7 +1,7 @@
 package friendsMod;
 
 import basemod.BaseMod;
-import basemod.interfaces.*;
+import basemod.interfaces.PreStartGameSubscriber;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.evacipated.cardcrawl.modthespire.lib.SpireConfig;
@@ -54,25 +54,14 @@ import java.util.stream.Collectors;
  */
 
 @SpireInitializer
-public class FriendsMod implements EditCardsSubscriber, EditRelicsSubscriber, EditStringsSubscriber,
-        EditKeywordsSubscriber, EditCharactersSubscriber, PostInitializeSubscriber {
-    // Make sure to implement the subscribers *you* are using (read basemod wiki). Editing cards? EditCardsSubscriber.
-    // Making relics? EditRelicsSubscriber. etc., etc., for a full list and how to make your own, visit the basemod
-    // wiki.
+public class FriendsMod implements PreStartGameSubscriber {
     public static final Logger logger = LogManager.getLogger(FriendsMod.class.getName());
     private static String modID;
-
-    // Mod-settings settings. This is if you want an on/off savable button
-    public static final String ENABLE_PLACEHOLDER_SETTINGS = "enablePlaceholder";
-    public static boolean enablePlaceholder = true; // The boolean we'll be setting on/off (true/false)
 
     //This is for the in-game mod settings panel.
     private static final String MODNAME = "Friends Mod";
     private static final String AUTHOR = "Gremious, sdgoglin";
     private static final String DESCRIPTION = "A mod.";
-
-    // =============== INPUT TEXTURE LOCATION =================
-
 
     public static final List<String> friends = new ArrayList<>();
     public static String highlightColor = "purple";
@@ -91,7 +80,6 @@ public class FriendsMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         friends.addAll(Arrays.stream(configFriends.split(",")).distinct().collect(Collectors.toList()));
         highlightColor = configHighlightColor;
@@ -162,9 +150,6 @@ public class FriendsMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
         }// NO
     }// NO
 
-    // ====== YOU CAN EDIT AGAIN ======
-
-
     @SuppressWarnings("unused")
     public static void initialize() {
         logger.info("========================= Initializing Friends Mod. Hi. =========================");
@@ -172,108 +157,12 @@ public class FriendsMod implements EditCardsSubscriber, EditRelicsSubscriber, Ed
         logger.info("========================= /Friends Mod Initialized/ =========================");
     }
 
-    // ============== /SUBSCRIBE, CREATE THE COLOR_GRAY, INITIALIZE/ =================
-
-
-    // =============== LOAD THE CHARACTER =================
-
-    @Override
-    public void receiveEditCharacters() {
-        receiveEditPotions();
-    }
-
-    // =============== /LOAD THE CHARACTER/ =================
-
-
-    // =============== POST-INITIALIZE =================
-
-    @Override
-    public void receivePostInitialize() {
-        logger.info("Loading badge image and mod options");
-
-        logger.info("Done loading badge Image and mod options");
-    }
-
-    // =============== / POST-INITIALIZE/ =================
-
-
-    // ================ ADD POTIONS ===================
-
-    public void receiveEditPotions() {
-        logger.info("Beginning to edit potions");
-
-        logger.info("Done editing potions");
-    }
-
-    // ================ /ADD POTIONS/ ===================
-
-
-    // ================ ADD RELICS ===================
-
-    @Override
-    public void receiveEditRelics() {
-        logger.info("Adding relics");
-
-        logger.info("Done adding relics!");
-    }
-
-    // ================ /ADD RELICS/ ===================
-
-
-    // ================ ADD CARDS ===================
-
-    @Override
-    public void receiveEditCards() {
-        logger.info("Adding variables");
-        //Ignore this
-        pathCheck();
-        // Add the Custom Dynamic Variables
-        logger.info("Add variabls");
-
-        logger.info("Adding cards");
-        // Add the cards
-        // Don't comment out/delete these cards (yet). You need 1 of each type and rarity (technically) for your game
-        // not to crash
-        // when generating card rewards/shop screen items.
-
-        logger.info("Making sure the cards are unlocked.");
-        // Unlock the cards
-        // This is so that they are all "seen" in the library, for people who like to look at the card list
-        // before playing your mod.
-
-        logger.info("Done adding cards!");
-    }
-
-    // There are better ways to do this than listing every single individual card, but I do not want to complicate
-    // things
-    // in a "tutorial" mod. This will do and it's completely ok to use. If you ever want to clean up and
-    // shorten all the imports, go look take a look at other mods, such as Hubris.
-
-    // ================ /ADD CARDS/ ===================
-
-
-    // ================ LOAD THE TEXT ===================
-
-    @Override
-    public void receiveEditStrings() {
-        logger.info("################################################################################");
-
-        logger.info("################################################################################");
-    }
-
-    // ================ /LOAD THE TEXT/ ===================
-
-    // ================ LOAD THE KEYWORDS ===================
-
-    @Override
-    public void receiveEditKeywords() {
-    }
-
-    // ================ /LOAD THE KEYWORDS/ ===================    
-
-    // this adds "ModName:" before the ID of any card/relic/power etc.
-    // in order to avoid conflicts if any other mod uses the same ID.
     public static String makeID(String idText) {
         return getModID() + ":" + idText;
+    }
+
+    @Override
+    public void receivePreStartGame() {
+
     }
 }
